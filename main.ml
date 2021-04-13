@@ -1,11 +1,17 @@
 open Exp
 
+module IntSet =
+  Set.Make(struct
+    type t = int
+    let compare = Stdlib.compare
+  end)
+
 (* Generate empty array of dimensions 2^n by n *)
 let gen_empty num_vars num_combos : bool array array =
   Array.make_matrix num_combos num_vars false
 
 (* Populate empty array w/ all configurations of inputs *)
-let populate table num_vars num_combos : bool array array=
+let populate table num_vars num_combos : bool array array =
   let fill = ref false in
   let skip = ref 1 in
   let temp = ref 0 in
@@ -38,11 +44,17 @@ let rec eval (e : exp) (vars : bool array) : bool =
   | Or (e1, e2) -> (eval e1 vars) || (eval e2 vars)
 
 (* Count the number of variables in a given exp *)
-let rec count_vars (e : exp) : int =
-  match e with
-  | Var v -> 1
-  | Not e -> count_vars e
-  | And (e1, e2) | Or (e1, e2) -> (count_vars e1) + (count_vars e2)
+let count_vars (e : exp) : int =
+  let found = ref IntSet.empty in
+  let rec search (e : exp) : int =
+    match e with
+    | Var v ->
+      if (IntSet.mem v !found) then 0
+      else begin found := IntSet.add v !found; 1 end
+    | Not e -> search e
+    | And (e1, e2) | Or (e1, e2) -> (search e1) + (search e2)
+  in
+  search e
 
 let find_config (e : exp) =
   let num_vars = count_vars e in
@@ -52,10 +64,12 @@ let find_config (e : exp) =
     for i = 0 to Array.length combos - 1 do
       temp := combos.(i);
       if eval e !temp then raise Exit
-    done
-    ; print_string "No configuration found."
+    done;
+    print_string "No configuration found.";
+    [||]
   with
-  | Exit -> print_string "Configuration found!"
+  | Exit ->
+    !temp
 
 (* exps for tests *)
 let not_gate = Not (Var 1)
@@ -71,52 +85,59 @@ let print_result result =
   if result then print_string "1\n"
   else print_string "0\n"
 
+let int_of_bool b =
+  if b then '1'
+  else '0'
+
+let print_config (config : bool array) =
+  for i = 0 to Array.length config - 1 do
+    print_int (i + 1);
+    print_string ": ";
+    print_char (int_of_bool config.(i));
+    print_char '\n'
+  done
+
 let expect result =
   if not result then failwith "Error"
 
 let expect_not result =
   if result then failwith "Error"
 
-  (* testing individual boolean functions *)
+(* testing individual boolean functions *)
 let test_not_gate () =
-  expect_not (eval not_gate [|true|]);
-  expect (eval not_gate [|false|])
+  print_string "NOT test:\n";
+  print_config (find_config not_gate);
+  print_char '\n'
 
 let test_and_gate () =
-  expect_not (eval and_gate [|false; false|]);
-  expect_not (eval and_gate [|true; false|]);
-  expect_not (eval and_gate [|false; true|]);
-  expect (eval and_gate [|true; true|])
+  print_string "AND test:\n";
+  print_config (find_config and_gate);
+  print_char '\n'
 
 let test_nand_gate () =
-  expect (eval nand_gate [|false; false|]);
-  expect (eval nand_gate [|true; false|]);
-  expect (eval nand_gate [|false; true|]);
-  expect_not (eval nand_gate [|true; true|])
+  print_string "NAND test:\n";
+  print_config (find_config nand_gate);
+  print_char '\n'
 
 let test_or_gate () =
-  expect_not (eval or_gate [|false; false|]);
-  expect (eval or_gate [|true; false|]);
-  expect (eval or_gate [|false; true|]);
-  expect (eval or_gate [|true; true|])
+  print_string "OR test:\n";
+  print_config (find_config or_gate);
+  print_char '\n'
 
 let test_nor_gate () =
-  expect (eval nor_gate [|false; false|]);
-  expect_not (eval nor_gate [|true; false|]);
-  expect_not (eval nor_gate [|false; true|]);
-  expect_not (eval nor_gate [|true; true|])
+  print_string "NOR test:\n";
+  print_config (find_config nor_gate);
+  print_char '\n'
 
 let test_xor_gate () =
-  expect_not (eval xor_gate [|false; false|]);
-  expect (eval xor_gate [|true; false|]);
-  expect (eval xor_gate [|false; true|]);
-  expect_not (eval xor_gate [|true; true|])
+  print_string "XOR test:\n";
+  print_config (find_config xor_gate);
+  print_char '\n'
 
 let test_xnor_gate () =
-  expect (eval xnor_gate [|false; false|]);
-  expect_not (eval xnor_gate [|true; false|]);
-  expect_not (eval xnor_gate [|false; true|]);
-  expect (eval xnor_gate [|true; true|])
+  print_string "XNOR test:\n";
+  print_config (find_config xnor_gate);
+  print_char '\n'
 
 (* test *)
 let _ =
