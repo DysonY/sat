@@ -1,0 +1,139 @@
+   0  $accept : %entry% $end
+
+   1  exp : NUM
+   2      | LPAREN exp RPAREN
+   3      | exp AND exp
+   4      | exp OR exp
+   5      | NOT exp
+
+   6  %entry% : '\001' exp
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . exp  (6)
+
+	NUM  shift 3
+	LPAREN  shift 4
+	NOT  shift 5
+	.  error
+
+	exp  goto 6
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	exp : NUM .  (1)
+
+	.  reduce 1
+
+
+state 4
+	exp : LPAREN . exp RPAREN  (2)
+
+	NUM  shift 3
+	LPAREN  shift 4
+	NOT  shift 5
+	.  error
+
+	exp  goto 7
+
+
+state 5
+	exp : NOT . exp  (5)
+
+	NUM  shift 3
+	LPAREN  shift 4
+	NOT  shift 5
+	.  error
+
+	exp  goto 8
+
+
+state 6
+	exp : exp . AND exp  (3)
+	exp : exp . OR exp  (4)
+	%entry% : '\001' exp .  (6)
+
+	AND  shift 9
+	OR  shift 10
+	$end  reduce 6
+
+
+state 7
+	exp : LPAREN exp . RPAREN  (2)
+	exp : exp . AND exp  (3)
+	exp : exp . OR exp  (4)
+
+	RPAREN  shift 11
+	AND  shift 9
+	OR  shift 10
+	.  error
+
+
+state 8
+	exp : exp . AND exp  (3)
+	exp : exp . OR exp  (4)
+	exp : NOT exp .  (5)
+
+	.  reduce 5
+
+
+state 9
+	exp : exp AND . exp  (3)
+
+	NUM  shift 3
+	LPAREN  shift 4
+	NOT  shift 5
+	.  error
+
+	exp  goto 12
+
+
+state 10
+	exp : exp OR . exp  (4)
+
+	NUM  shift 3
+	LPAREN  shift 4
+	NOT  shift 5
+	.  error
+
+	exp  goto 13
+
+
+state 11
+	exp : LPAREN exp RPAREN .  (2)
+
+	.  reduce 2
+
+
+state 12
+	exp : exp . AND exp  (3)
+	exp : exp AND exp .  (3)
+	exp : exp . OR exp  (4)
+
+	.  reduce 3
+
+
+state 13
+	exp : exp . AND exp  (3)
+	exp : exp . OR exp  (4)
+	exp : exp OR exp .  (4)
+
+	.  reduce 4
+
+
+9 terminals, 3 nonterminals
+7 grammar rules, 14 states
