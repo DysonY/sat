@@ -1,16 +1,19 @@
 open Exp
 open Token
 
+(* Helper function for expect *)
 let require (target : token) (tokens : token list) =
   match tokens with
   | t :: ts when t = target -> ts
   | _ -> failwith "Parse require failed."
 
+(* Given LPAREN, search for RPAREN *)
 let expect parse_fun (target : token) (tokens : token list) =
   let (v, ts) = parse_fun tokens in
   let ts = require target ts in
   (v, ts)
 
+(* Scan and/or block *)
 let and_or curr_fn next_fn (tokens : token list) =
   let rec parse_temp (e1 : exp) (ts : token list) =
     match ts with
@@ -25,9 +28,11 @@ let and_or curr_fn next_fn (tokens : token list) =
   let (e1, ts) = next_fn tokens in
   parse_temp e1 ts
 
+(* Helpers for and_or *)
 let and_fn = Some (function a -> function b -> And (a, b))
 let or_fn = Some (function a -> function b -> Or (a, b))
 
+(* Parse NUM, NOT, LPAREN *)
 let rec parse_atom (tokens : token list) : (exp * token list) =
   match tokens with
   | NUM i :: ts -> (Var i, ts)
@@ -37,6 +42,7 @@ let rec parse_atom (tokens : token list) : (exp * token list) =
   | LPAREN :: ts -> expect parse RPAREN ts
   | _ -> failwith "Parse atom failed."
 
+(* Parse AND, OR *)
 and parse_term (tokens : token list) : (exp * token list) =
   let f (t : token) =
     match t with
@@ -46,11 +52,12 @@ and parse_term (tokens : token list) : (exp * token list) =
   in
   and_or f parse_atom tokens
 
+(* Main parsing function *)
 and parse (tokens : token list) : (exp * token list) =
   parse_term tokens
 
 (* TESTS FOR PARSE *)
-    (*
+(*
 let tests = [ [NUM 1; AND; NUM 2]
             ; [NUM 1; OR; NUM 2]
             ; [NOT; NUM 1]
@@ -68,4 +75,4 @@ let rec test ts =
     test ts
 
 let _ = test tests
-    *)
+*)

@@ -1,7 +1,9 @@
+open Eval
+
 let solve (s : string) : bool array =
   let tokens = Lex.tokenize s in
   let (ast, _) = Parse.parse tokens in
-  Eval.find_config ast
+  find_config ast
 
 let print_result result =
   if result then print_string "1\n"
