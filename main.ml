@@ -1,8 +1,10 @@
 open Eval
+open Lex
+open Parse
 
 let solve (s : string) : bool array =
-  let tokens = Lex.tokenize s in
-  let (ast, _) = Parse.parse tokens in
+  let tokens = tokenize s in
+  let (ast, _) = parse tokens in
   find_config ast
 
 let print_result result =
