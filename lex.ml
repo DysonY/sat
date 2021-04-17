@@ -1,7 +1,4 @@
-type token =
-  | NUM of int
-  | LPAREN | RPAREN
-  | NOT | AND | OR
+open Token
 
 (* Explode a string into a list *)
 let explode (str : string) : char list =
