@@ -12,4 +12,4 @@ To run:
 4/12/21: fixed error in count_vars; updated tests  
 4/13/21: added lexer  
 4/16/21: added parser  
-4/17/21: end-to-end solver complete!
+4/17/21: end-to-end solver complete! added Makefile
