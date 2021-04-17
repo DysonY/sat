@@ -1,6 +1,3 @@
-open Exp
-open Token
-
 let solve (s : string) : bool array =
   let tokens = Lex.tokenize s in
   let (ast, _) = Parse.parse tokens in
