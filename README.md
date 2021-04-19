@@ -1,9 +1,13 @@
 # SAT
-This program implements a solver for the boolean satisfiability problem.  
+This program implements a solver for the boolean satisfiability problem. The following operations are supported:
+
+not: ~  
+and: &  
+or: |  
 
 To run:
 ```bash
-./main "1&(2|~3)"
+./main "1 & ( 2 | ~3 )"
 ```
 
 # Changelog
