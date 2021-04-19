@@ -66,7 +66,7 @@ let find_config (e : exp) : bool array =
       temp := combos.(i);
       if eval e !temp then raise Exit
     done;
-    print_string "No configuration found.";
+    print_string "No configuration found.\n";
     [||]
   with
   | Exit ->
