@@ -7,7 +7,7 @@ or: |
 
 To run:
 ```bash
-./main "1 & ( 2 | ~3 )"
+./main "1 & (2 | ~3)"
 ```
 
 # Changelog
