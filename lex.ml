@@ -3,8 +3,9 @@ open Token
 (* Explode a string into a list *)
 let explode (str : string) : char list =
   let rec loop index output =
-    if index < 0 then output
-    else loop (index - 1) (str.[index] :: output)
+    match index < 0 with
+    | true -> output
+    | false -> loop (index - 1) (str.[index] :: output)
   in
   loop (String.length str - 1) []
 
