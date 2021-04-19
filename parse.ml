@@ -28,10 +28,6 @@ let and_or curr_fn next_fn (tokens : token list) =
   let (e1, ts) = next_fn tokens in
   parse_temp e1 ts
 
-(* Helpers for and_or *)
-let and_fn = Some (function a -> function b -> And (a, b))
-let or_fn = Some (function a -> function b -> Or (a, b))
-
 (* Parse NUM, NOT, LPAREN *)
 let rec parse_atom (tokens : token list) : (exp * token list) =
   match tokens with
@@ -46,8 +42,8 @@ let rec parse_atom (tokens : token list) : (exp * token list) =
 and parse_term (tokens : token list) : (exp * token list) =
   let f (t : token) =
     match t with
-    | AND -> and_fn
-    | OR -> or_fn
+    | AND -> Some (function a -> function b -> And (a, b))
+    | OR -> Some (function a -> function b -> Or (a, b))
     | _ -> None
   in
   and_or f parse_atom tokens
